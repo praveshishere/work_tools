@@ -70,6 +70,10 @@ mv temp.json package.json
 mark_completion
 
 
+print_padded_string " => Removing package-lock.json"
+rm -rf package-lock.json
+mark_completion
+
 
 npm config set registry https://registry.npmjs.com/
 print_padded_string " => Default registry set to https://registry.npmjs.com/"
