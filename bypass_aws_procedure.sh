@@ -4,8 +4,81 @@ log_dir="$HOME/bypass_aws_procedure/"
 current_datetime=$(date +"%Y-%m-%d_%H:%M:%S")
 current_log_file="${log_dir}${current_datetime}.log"
 
-global_total_width=60
+global_total_width=65
 
+# Function to start the subprocess with a specified command
+start_subprocess() {
+  local command="$1"
+  
+  # Start the subprocess in the background
+  eval $command &
+  
+  # Capture the PID of the subprocess
+  subprocess_pid=$!  
+}
+
+# Function to check if the subprocess is still running
+is_subprocess_running() {
+  # Check if the process with the specified PID is running
+  kill -0 "$1" 2>/dev/null
+}
+
+# Function to clear a specified number of characters from the console
+clear_characters() {
+  local num_characters="$1"
+  
+  # Move the cursor backward
+  printf "\b%.0s" $(seq 1 "$num_characters")
+  
+  # Output spaces to overwrite the characters
+  printf "%${num_characters}s" ""
+
+  # Move the cursor backward
+  printf "\b%.0s" $(seq 1 "$num_characters")
+}
+
+# Function to count lines in a file
+count_lines() {
+  local filename="$1"
+  
+  if [ -f "$current_log_file" ]; then
+    local line_count=$(wc -l < "$filename")
+    echo "$line_count"
+  else
+    echo "0"
+  fi
+}
+
+count_digits() {
+  local number="$1"
+  local number_string="$number"
+  local length=${#number_string}
+  echo "$length"
+}
+
+# Function to monitor file and log line count
+monitor_file() {
+  local file_name="$1"
+ 
+  # Infinite loop to call the count_lines function every 1 second
+  while true; do
+
+    # Check if the subprocess is still running
+    if ! is_subprocess_running "$subprocess_pid"; then
+      break
+    fi
+
+    local lines=$(count_lines "$file_name")
+    
+    echo -n "$lines"
+    sleep 0.05
+
+    local len=$(count_digits $lines)
+    local spaces=$((len))
+    clear_characters $spaces
+
+  done
+}
 
 # Function to print a check mark symbol
 mark_completion() {
@@ -81,7 +154,8 @@ mark_completion
 
 
 print_padded_string " => Installing packages from https://registry.npmjs.com/"
-npm i --no-progress >> ${current_log_file}
+start_subprocess "npm i --no-progress >> ${current_log_file}"
+monitor_file $current_log_file
 mark_completion
 
 
@@ -95,7 +169,8 @@ git checkout -- package.json
 mark_completion
 
 print_padded_string " => Installing packages from aws"
-npm i --no-progress >> ${current_log_file}
+start_subprocess "npm i --no-progress >> ${current_log_file}"
+monitor_file $current_log_file
 mark_completion
 
 echo " => Procedure ended."
