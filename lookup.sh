@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# This script takes two arguments: a directory and a threshold.
+# It will recursively scan the directory and all its subdirectories
+# for files that have more lines than the given threshold.
+# If such a file is found, it will print the name of the file and
+# the number of lines it has.
+
 # Function to recursively scan directory
 scan_directory() {
     local dir="$1"
