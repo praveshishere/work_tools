@@ -2,7 +2,7 @@
 
 # Function to display usage
 usage() {
-    echo "Usage: $0 <source-branch> <target-branch> <number-of-commits>"
+    echo "Usage: $0 <source-branch> <target-branch> <commit-id>"
     exit 1
 }
 
@@ -13,19 +13,16 @@ fi
 
 SOURCE_BRANCH=$1
 TARGET_BRANCH=$2
-NUM_COMMITS=$3
-
-# Check if the number of commits is a valid number
-if ! [[ "$NUM_COMMITS" =~ ^[0-9]+$ ]]; then
-    echo "Error: The number of commits should be a valid number."
-    usage
-fi
+COMMIT_ID=$3
 
 # Fetch the latest changes from the remote repository
 git fetch
 
 # Switch to the source branch
 git checkout $SOURCE_BRANCH
+
+# Calculate the number of commits from the commit ID to HEAD
+NUM_COMMITS=$(git rev-list --count $COMMIT_ID..HEAD)
 
 # Get the commit hashes of the latest n commits from the source branch
 COMMITS=$(git log -n $NUM_COMMITS --pretty=format:"%H")
@@ -46,3 +43,4 @@ for COMMIT in $COMMITS; do
 done
 
 echo "Cherry-picked $NUM_COMMITS commits from $SOURCE_BRANCH to $TARGET_BRANCH successfully."
+
