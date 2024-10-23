@@ -2,18 +2,18 @@
 
 # Function to display usage
 usage() {
-    echo "Usage: $0 <source-branch> <target-branch> <commit-id>"
+    echo "Usage: $0 <source-branch> <commit-id>"
     exit 1
 }
 
 # Check if the correct number of arguments is provided
-if [ "$#" -ne 3 ]; then
+if [ "$#" -ne 2 ]; then
     usage
 fi
 
 SOURCE_BRANCH=$1
-TARGET_BRANCH=$2
-COMMIT_ID=$3
+TARGET_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+COMMIT_ID=$2
 
 # Calculate the number of commits from the commit ID to HEAD of source branch
 NUM_COMMITS=$(git rev-list --count $COMMIT_ID..$SOURCE_BRANCH)
