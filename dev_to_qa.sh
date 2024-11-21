@@ -12,6 +12,12 @@ if [ "$#" -ne 2 ]; then
 fi
 
 SOURCE_BRANCH=$1
+
+if ! git rev-parse --quiet --verify $SOURCE_BRANCH > /dev/null; then
+    echo "Branch '$SOURCE_BRANCH' does not exist."
+    exit 1
+fi
+
 TARGET_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 COMMIT_ID=$2
 
